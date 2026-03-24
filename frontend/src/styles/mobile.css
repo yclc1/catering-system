@@ -62,7 +62,13 @@
     width: 100% !important;
   }
 
-  .el-input__inner {
+  .el-input__inner,
+  .el-input__wrapper {
+    width: 100% !important;
+  }
+
+  /* 确保 SelectWithAdd 组件宽度 */
+  .el-form-item__content > div {
     width: 100% !important;
   }
 
@@ -132,6 +138,22 @@
   /* 下拉菜单适配 */
   .el-select-dropdown {
     max-width: 90vw !important;
+    min-width: 200px !important;
+  }
+
+  .el-select-dropdown__item {
+    padding: 0 12px !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+  }
+
+  /* 确保选中后的显示区域宽度 */
+  .el-select .el-input__wrapper {
+    width: 100% !important;
+  }
+
+  .el-select .el-input__inner {
+    width: 100% !important;
   }
 
   /* 日期选择器适配 */

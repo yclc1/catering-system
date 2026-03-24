@@ -17,10 +17,10 @@
       />
     </el-select>
 
-    <el-dialog v-model="addVisible" :title="`新增${label}`" width="500px" append-to-body>
+    <el-dialog v-model="addVisible" :title="`新增${label}`" :width="isMobile ? '90%' : '500px'" :fullscreen="isMobile" append-to-body>
       <slot name="form" :form="addForm" />
       <template #footer>
-        <el-button @click="addVisible = false">取消</el-button>
+        <el-button @click="handleCancel">取消</el-button>
         <el-button type="primary" :loading="addLoading" @click="handleAdd">确定</el-button>
       </template>
     </el-dialog>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 
 interface DropdownItem {
@@ -54,12 +54,17 @@ const emit = defineEmits<{
 const addVisible = ref(false)
 const addLoading = ref(false)
 const addForm = ref<Record<string, any>>({})
+const previousValue = ref<number | null>(null)
+
+const isMobile = computed(() => window.innerWidth <= 768)
 
 function handleChange(val: any) {
   if (val === '__add__') {
+    previousValue.value = props.modelValue || null
     addForm.value = {}
     addVisible.value = true
-    emit('update:modelValue', null)
+    // Don't emit null, keep the previous value
+    emit('update:modelValue', previousValue.value)
     return
   }
   emit('update:modelValue', val)
@@ -74,11 +79,17 @@ async function handleAdd() {
     addVisible.value = false
     emit('created', result)
     emit('update:modelValue', result.id)
+    previousValue.value = null
   } catch {
     // handled by interceptor
   } finally {
     addLoading.value = false
   }
+}
+
+function handleCancel() {
+  addVisible.value = false
+  previousValue.value = null
 }
 </script>
 
