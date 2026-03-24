@@ -1,6 +1,15 @@
 /* 移动端适配样式 */
 
 @media (max-width: 768px) {
+  /* 防止页面横向滚动 */
+  body {
+    overflow-x: hidden;
+  }
+
+  #app {
+    overflow-x: hidden;
+  }
+
   /* 全局弹窗适配 */
   .el-dialog {
     width: 95% !important;
@@ -30,7 +39,7 @@
     font-size: 14px !important;
   }
 
-  /* 表格适配 */
+  /* 表格适配 - 允许横向滚动 */
   .el-table {
     font-size: 12px !important;
   }
@@ -38,6 +47,10 @@
   .el-table th,
   .el-table td {
     padding: 8px 4px !important;
+  }
+
+  .el-table__body-wrapper {
+    overflow-x: auto !important;
   }
 
   /* 按钮适配 */

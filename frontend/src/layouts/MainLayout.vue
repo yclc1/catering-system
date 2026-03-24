@@ -110,8 +110,8 @@ const pwdForm = ref({ old_password: '', new_password: '' })
 
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
-  if (isMobile.value && !sidebarCollapsed.value) {
-    appStore.toggleSidebar()
+  if (isMobile.value) {
+    appStore.sidebarCollapsed = true
   }
 }
 
@@ -287,11 +287,25 @@ async function changePassword() {
     left: 0;
     top: 0;
   }
+  .sidebar.mobile-sidebar.el-aside {
+    transform: translateX(0);
+  }
+  .sidebar.mobile-sidebar.el-aside[style*="width: 64px"] {
+    transform: translateX(-100%);
+  }
   .main-content {
     padding: 8px;
+    overflow-x: auto;
   }
   .header {
     padding: 0 8px;
+  }
+  /* 表格横向滚动 */
+  :deep(.el-table) {
+    min-width: 100%;
+  }
+  :deep(.el-table__body-wrapper) {
+    overflow-x: auto;
   }
 }
 </style>
