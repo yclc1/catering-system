@@ -28,91 +28,91 @@ const routes: RouteRecordRaw[] = [
         path: 'suppliers',
         name: 'Suppliers',
         component: () => import('@/views/suppliers/index.vue'),
-        meta: { title: '供应商管理', icon: 'OfficeBuilding', permission: 'supplier:list' },
+        meta: { title: '供应商管理', icon: 'OfficeBuilding', permission: 'supplier:view' },
       },
       // 商品
       {
         path: 'products',
         name: 'Products',
         component: () => import('@/views/products/index.vue'),
-        meta: { title: '商品管理', icon: 'Goods', permission: 'product:list' },
+        meta: { title: '商品管理', icon: 'Goods', permission: 'product:view' },
       },
       // 采购
       {
         path: 'purchases',
         name: 'Purchases',
         component: () => import('@/views/purchases/index.vue'),
-        meta: { title: '采购管理', icon: 'ShoppingCart', permission: 'purchase:list' },
+        meta: { title: '采购管理', icon: 'ShoppingCart', permission: 'purchase:view' },
       },
       // 库存
       {
         path: 'inventory',
         name: 'Inventory',
         component: () => import('@/views/inventory/index.vue'),
-        meta: { title: '库存管理', icon: 'Box', permission: 'inventory:list' },
+        meta: { title: '库存管理', icon: 'Box', permission: 'inventory:view' },
       },
       // 客户
       {
         path: 'customers',
         name: 'Customers',
         component: () => import('@/views/customers/index.vue'),
-        meta: { title: '客户管理', icon: 'User', permission: 'customer:list' },
+        meta: { title: '客户管理', icon: 'User', permission: 'customer:view' },
       },
       // 用餐登记
       {
         path: 'meals',
         name: 'Meals',
         component: () => import('@/views/customers/meals.vue'),
-        meta: { title: '用餐登记', icon: 'Bowl', permission: 'meal:list' },
+        meta: { title: '用餐登记', icon: 'Bowl', permission: 'meal:view' },
       },
       // 客户结算
       {
         path: 'settlements',
         name: 'Settlements',
         component: () => import('@/views/customers/settlements.vue'),
-        meta: { title: '月度结算', icon: 'Tickets', permission: 'settlement:list' },
+        meta: { title: '月度结算', icon: 'Tickets', permission: 'settlement:view' },
       },
       // 收款账户
       {
         path: 'accounts',
         name: 'Accounts',
         component: () => import('@/views/accounts/index.vue'),
-        meta: { title: '收款账户', icon: 'Wallet', permission: 'account:list' },
+        meta: { title: '收款账户', icon: 'Wallet', permission: 'payment:view' },
       },
       // 收付款
       {
         path: 'payments',
         name: 'Payments',
         component: () => import('@/views/accounts/payments.vue'),
-        meta: { title: '收付款记录', icon: 'Money', permission: 'payment:list' },
+        meta: { title: '收付款记录', icon: 'Money', permission: 'payment:view' },
       },
       // 供应商对账
       {
         path: 'reconciliations',
         name: 'Reconciliations',
         component: () => import('@/views/reconciliation/index.vue'),
-        meta: { title: '供应商对账', icon: 'Document', permission: 'reconciliation:list' },
+        meta: { title: '供应商对账', icon: 'Document', permission: 'supplier:view' },
       },
       // 费用审批
       {
         path: 'expenses',
         name: 'Expenses',
         component: () => import('@/views/expenses/index.vue'),
-        meta: { title: '费用审批', icon: 'CreditCard', permission: 'expense:list' },
+        meta: { title: '费用审批', icon: 'CreditCard', permission: 'expense:view' },
       },
       // 车辆
       {
         path: 'vehicles',
         name: 'Vehicles',
         component: () => import('@/views/vehicles/index.vue'),
-        meta: { title: '车辆管理', icon: 'Van', permission: 'vehicle:list' },
+        meta: { title: '车辆管理', icon: 'Van', permission: 'vehicle:view' },
       },
       // 合同
       {
         path: 'contracts',
         name: 'Contracts',
         component: () => import('@/views/contracts/index.vue'),
-        meta: { title: '合同管理', icon: 'Notebook', permission: 'contract:list' },
+        meta: { title: '合同管理', icon: 'Notebook', permission: 'contract:view' },
       },
       // 统计
       {
@@ -126,28 +126,28 @@ const routes: RouteRecordRaw[] = [
         path: 'users',
         name: 'Users',
         component: () => import('@/views/users/index.vue'),
-        meta: { title: '用户管理', icon: 'UserFilled', permission: 'user:list' },
+        meta: { title: '用户管理', icon: 'UserFilled', permission: 'user:view' },
       },
       // 角色管理
       {
         path: 'roles',
         name: 'Roles',
         component: () => import('@/views/users/roles.vue'),
-        meta: { title: '角色管理', icon: 'Lock', permission: 'role:list' },
+        meta: { title: '角色管理', icon: 'Lock', permission: 'role:view' },
       },
       // 审计日志
       {
         path: 'audit-logs',
         name: 'AuditLogs',
         component: () => import('@/views/audit/index.vue'),
-        meta: { title: '审计日志', icon: 'List', permission: 'audit:list' },
+        meta: { title: '审计日志', icon: 'List', permission: 'audit:view' },
       },
       // 月结管理
       {
         path: 'monthly-close',
         name: 'MonthlyClose',
         component: () => import('@/views/audit/monthlyClose.vue'),
-        meta: { title: '月结管理', icon: 'Calendar', permission: 'monthly_close:close' },
+        meta: { title: '月结管理', icon: 'Calendar', permission: 'audit:view' },
       },
     ],
   },
