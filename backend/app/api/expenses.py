@@ -55,7 +55,7 @@ async def list_expenses(
         status=e.status, approved_at=str(e.approved_at) if e.approved_at else None,
         reject_reason=e.reject_reason,
         items=[ExpenseItemResponse(id=i.id, description=i.description, amount=i.amount, attachment_url=i.attachment_url) for i in e.items],
-        notes=e.notes, month_closed=e.month_closed,
+        notes=e.notes, photos=e.photos, month_closed=e.month_closed,
     ) for e in expenses]
 
     return PageResponse(items=items, total=total, page=page, page_size=page_size, total_pages=(total + page_size - 1) // page_size)
@@ -69,7 +69,7 @@ async def create_expense(data: ExpenseApprovalCreate, db: AsyncSession = Depends
     expense = ExpenseApproval(
         code=code, applicant_id=current_user.id, approver_id=data.approver_id,
         category_id=data.category_id, title=data.title, total_amount=data.total_amount,
-        expense_date=data.expense_date, notes=data.notes, created_by=current_user.id,
+        expense_date=data.expense_date, notes=data.notes, photos=data.photos, created_by=current_user.id,
     )
     db.add(expense)
     await db.flush()
@@ -92,7 +92,7 @@ async def create_expense(data: ExpenseApprovalCreate, db: AsyncSession = Depends
         category_name=e.category.name if e.category else None,
         title=e.title, total_amount=e.total_amount, expense_date=e.expense_date,
         status=e.status, items=[ExpenseItemResponse(id=i.id, description=i.description, amount=i.amount, attachment_url=i.attachment_url) for i in e.items],
-        notes=e.notes, month_closed=e.month_closed,
+        notes=e.notes, photos=e.photos, month_closed=e.month_closed,
     )
 
 
