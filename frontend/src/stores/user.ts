@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', () => {
   const permissions = ref<string[]>([])
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() => userInfo.value?.roles?.includes('admin'))
+  const isAdmin = computed(() => userInfo.value?.roles?.some((r: string) => r.toLowerCase() === 'admin'))
 
   function hasPermission(perm: string): boolean {
     if (isAdmin.value) return true
