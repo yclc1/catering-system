@@ -15,22 +15,26 @@ SECRET_KEY=YOUR_GENERATED_SECRET_KEY_HERE
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=120
 REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# 生产环境必须设置为 False
+DEBUG=False
 ```
 
 ### 前端 (.env.production)
 ```bash
-VITE_API_BASE_URL=http://YOUR_SERVER_IP:8000
+VITE_API_BASE_URL=https://YOUR_DOMAIN
 ```
 
 ## 部署安全检查清单
 
 - [ ] 修改数据库密码
 - [ ] 生成并配置强随机 SECRET_KEY
+- [ ] 设置 DEBUG=False
+- [ ] 配置 HTTPS (使用 Let's Encrypt)
 - [ ] 使用非 root 用户运行服务
 - [ ] 配置 SSH 密钥认证，禁用密码登录
 - [ ] 启用防火墙，只开放必要端口
 - [ ] 定期更新系统和依赖包
-- [ ] 配置 HTTPS (使用 Let's Encrypt)
 - [ ] 定期备份数据库
 - [ ] 监控审计日志
 
@@ -42,4 +46,17 @@ openssl rand -hex 32
 
 # 生成数据库密码
 openssl rand -base64 24
+```
+
+## HTTPS 配置 (Let's Encrypt)
+
+```bash
+# 安装 certbot
+apt install certbot python3-certbot-nginx -y
+
+# 获取证书
+certbot --nginx -d your-domain.com
+
+# 自动续期
+certbot renew --dry-run
 ```

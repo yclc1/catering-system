@@ -37,8 +37,9 @@ async def list_users(
     count_query = select(func.count(User.id))
 
     if keyword:
-        query = query.where(User.username.ilike(f"%{keyword}%") | User.real_name.ilike(f"%{keyword}%"))
-        count_query = count_query.where(User.username.ilike(f"%{keyword}%") | User.real_name.ilike(f"%{keyword}%"))
+        escaped_keyword = keyword.replace('%', '\\%').replace('_', '\\_')
+        query = query.where(User.username.ilike(f"%{escaped_keyword}%") | User.real_name.ilike(f"%{escaped_keyword}%"))
+        count_query = count_query.where(User.username.ilike(f"%{escaped_keyword}%") | User.real_name.ilike(f"%{escaped_keyword}%"))
 
     total = (await db.execute(count_query)).scalar()
     result = await db.execute(

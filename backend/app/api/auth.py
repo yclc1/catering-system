@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -18,10 +20,12 @@ from app.services.audit_service import create_audit_log
 from app.config import settings
 
 router = APIRouter(prefix="/auth", tags=["认证"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(data: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(request: Request, data: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(User)
         .options(selectinload(User.roles))
