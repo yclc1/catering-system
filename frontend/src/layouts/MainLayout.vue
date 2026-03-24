@@ -1,6 +1,9 @@
 <template>
   <el-container class="main-layout">
-    <el-aside :width="sidebarCollapsed ? '64px' : '220px'" class="sidebar">
+    <!-- Mobile Overlay -->
+    <div v-if="isMobile && !sidebarCollapsed" class="sidebar-overlay" @click="appStore.toggleSidebar"></div>
+
+    <el-aside :width="sidebarCollapsed ? '64px' : '220px'" :class="['sidebar', { 'mobile-sidebar': isMobile }]">
       <div class="logo" @click="$router.push('/')">
         <span v-if="!sidebarCollapsed">团膳管理</span>
         <span v-else>膳</span>
@@ -13,6 +16,7 @@
           background-color="#304156"
           text-color="#bfcbd9"
           active-text-color="#409EFF"
+          @select="handleMenuSelect"
         >
           <template v-for="item in menuItems" :key="item.path">
             <el-sub-menu v-if="item.children" :index="item.path">
@@ -44,7 +48,7 @@
             <Fold v-if="!sidebarCollapsed" />
             <Expand v-else />
           </el-icon>
-          <el-breadcrumb separator="/">
+          <el-breadcrumb separator="/" v-if="!isMobile">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item v-if="$route.meta.title">{{ $route.meta.title }}</el-breadcrumb-item>
           </el-breadcrumb>
@@ -53,7 +57,7 @@
           <el-dropdown @command="handleCommand">
             <span class="user-info">
               <el-icon><UserFilled /></el-icon>
-              {{ userStore.userInfo?.real_name || userStore.userInfo?.username || '用户' }}
+              <span v-if="!isMobile">{{ userStore.userInfo?.real_name || userStore.userInfo?.username || '用户' }}</span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -72,7 +76,7 @@
   </el-container>
 
   <!-- Change Password Dialog -->
-  <el-dialog v-model="pwdVisible" title="修改密码" width="400px">
+  <el-dialog v-model="pwdVisible" title="修改密码" :width="isMobile ? '90%' : '400px'" :fullscreen="isMobile">
     <el-form :model="pwdForm" label-width="80px">
       <el-form-item label="旧密码">
         <el-input v-model="pwdForm.old_password" type="password" show-password />
@@ -89,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { Fold, Expand, UserFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
@@ -100,14 +104,34 @@ const userStore = useUserStore()
 const appStore = useAppStore()
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 
+const isMobile = ref(false)
 const pwdVisible = ref(false)
 const pwdForm = ref({ old_password: '', new_password: '' })
+
+function checkMobile() {
+  isMobile.value = window.innerWidth <= 768
+  if (isMobile.value && !sidebarCollapsed.value) {
+    appStore.toggleSidebar()
+  }
+}
 
 onMounted(() => {
   if (!userStore.userInfo) {
     userStore.fetchUserInfo()
   }
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
+
+function handleMenuSelect() {
+  if (isMobile.value && !sidebarCollapsed.value) {
+    appStore.toggleSidebar()
+  }
+}
 
 interface MenuItem {
   path: string
@@ -247,10 +271,27 @@ async function changePassword() {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+  }
+  .mobile-sidebar {
     position: fixed;
     z-index: 999;
     height: 100vh;
+    left: 0;
+    top: 0;
+  }
+  .main-content {
+    padding: 8px;
+  }
+  .header {
+    padding: 0 8px;
   }
 }
 </style>

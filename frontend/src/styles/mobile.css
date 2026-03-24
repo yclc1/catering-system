@@ -1,0 +1,105 @@
+/* 移动端适配样式 */
+
+@media (max-width: 768px) {
+  /* 全局弹窗适配 */
+  .el-dialog {
+    width: 95% !important;
+    margin: 0 auto !important;
+  }
+
+  .el-dialog__header {
+    padding: 12px 16px !important;
+  }
+
+  .el-dialog__body {
+    padding: 12px 16px !important;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .el-dialog__footer {
+    padding: 10px 16px !important;
+  }
+
+  /* 表单适配 */
+  .el-form-item {
+    margin-bottom: 16px !important;
+  }
+
+  .el-form-item__label {
+    font-size: 14px !important;
+  }
+
+  /* 表格适配 */
+  .el-table {
+    font-size: 12px !important;
+  }
+
+  .el-table th,
+  .el-table td {
+    padding: 8px 4px !important;
+  }
+
+  /* 按钮适配 */
+  .el-button {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  .el-button + .el-button {
+    margin-left: 8px !important;
+  }
+
+  /* 搜索栏适配 */
+  .search-bar {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .search-bar .el-form-item {
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+
+  /* 卡片适配 */
+  .el-card {
+    margin-bottom: 12px !important;
+  }
+
+  .el-card__header {
+    padding: 12px !important;
+  }
+
+  .el-card__body {
+    padding: 12px !important;
+  }
+
+  /* 分页适配 */
+  .el-pagination {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  .el-pagination .el-pager li {
+    min-width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    font-size: 12px !important;
+  }
+
+  /* 下拉菜单适配 */
+  .el-select-dropdown {
+    max-width: 90vw !important;
+  }
+
+  /* 日期选择器适配 */
+  .el-picker-panel {
+    max-width: 90vw !important;
+  }
+
+  /* 消息提示适配 */
+  .el-message {
+    min-width: 280px !important;
+    max-width: 90vw !important;
+  }
+}
