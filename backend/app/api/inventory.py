@@ -1,6 +1,6 @@
 """Inventory API."""
 from typing import Optional
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, func
@@ -106,13 +106,17 @@ async def create_transaction(data: InventoryTransactionCreate, db: AsyncSession 
             total_value = stock.current_qty * stock.avg_unit_cost + item_data.quantity * item_data.unit_price
             stock.current_qty += item_data.quantity
             if stock.current_qty > 0:
-                stock.avg_unit_cost = total_value / stock.current_qty
+                stock.avg_unit_cost = (total_value / stock.current_qty).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)
             stock.last_inbound_date = data.transaction_date
         elif data.transaction_type in ("outbound", "return_supplier", "damage", "loss"):
+            if stock.current_qty < item_data.quantity:
+                raise BusinessError(f"库存不足，当前库存: {stock.current_qty}，需要扣减: {item_data.quantity}")
             stock.current_qty -= item_data.quantity
             stock.last_outbound_date = data.transaction_date
         elif data.transaction_type == "stocktake_adjust":
-            stock.current_qty += item_data.quantity  # Can be negative for adjustment
+            stock.current_qty += item_data.quantity
+            if stock.current_qty < 0:
+                raise BusinessError(f"调整后库存不能为负数，调整后库存: {stock.current_qty}")
 
     txn.total_amount = total
     await db.flush()

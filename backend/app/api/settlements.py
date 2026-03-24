@@ -102,6 +102,7 @@ async def generate_settlement(
     )
     row = result.one()
     bc, lc, dc, sc, total = row
+    total = total or Decimal("0")
 
     existing = await db.execute(
         select(CustomerSettlement).where(

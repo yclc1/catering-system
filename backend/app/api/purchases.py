@@ -1,6 +1,6 @@
 """Purchase Order API."""
 from typing import Optional
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, func
@@ -245,7 +245,7 @@ async def confirm_purchase(po_id: int, db: AsyncSession = Depends(get_db), curre
             total_value = stock.current_qty * stock.avg_unit_cost + poi.quantity * poi.unit_price
             stock.current_qty += poi.quantity
             if stock.current_qty > 0:
-                stock.avg_unit_cost = total_value / stock.current_qty
+                stock.avg_unit_cost = (total_value / stock.current_qty).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)
         stock.last_inbound_date = po.order_date
 
     await create_audit_log(db, current_user.id, current_user.username, "confirm", "purchase_order", resource_id=po.id, resource_code=po.code)

@@ -15,7 +15,7 @@ export const userApi = {
   create: (data: any) => request.post('/users', data),
   update: (id: number, data: any) => request.put(`/users/${id}`, data),
   delete: (id: number) => request.delete(`/users/${id}`),
-  dropdown: () => request.get('/users/dropdown/list'),
+  dropdown: () => request.get('/users/dropdown'),
 }
 
 // Roles
