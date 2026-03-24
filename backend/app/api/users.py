@@ -17,6 +17,7 @@ from app.schemas.user import (
 )
 from app.schemas import PageResponse, MessageResponse, DropdownItem
 from app.core.permissions import require_permission, get_user_permissions
+from app.services.audit_service import create_audit_log
 
 router = APIRouter(prefix="/users", tags=["用户管理"])
 role_router = APIRouter(prefix="/roles", tags=["角色管理"])
@@ -219,8 +220,6 @@ async def create_role(
     data: RoleCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission("role:create")),
-):
-    current_user: User = Depends(get_current_user),
 ):
     role = Role(code=data.code, name=data.name, description=data.description)
     db.add(role)

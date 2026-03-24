@@ -180,7 +180,10 @@ async def update_payment(record_id: int, data: PaymentRecordUpdate, db: AsyncSes
         if r.direction == "inbound":
             new_account.current_balance += r.amount
         else:
-            new_account.current_balance -= r.amount
+            new_balance = new_account.current_balance - r.amount
+            if new_balance < 0:
+                raise BusinessError(f"账户余额不足，当前余额: {new_account.current_balance}")
+            new_account.current_balance = new_balance
     # Adjust account balance if amount changed
     elif data.amount is not None and data.amount != old_amount:
         account_result = await db.execute(select(PaymentAccount).where(PaymentAccount.id == r.account_id).with_for_update())
@@ -189,7 +192,10 @@ async def update_payment(record_id: int, data: PaymentRecordUpdate, db: AsyncSes
         if r.direction == "inbound":
             account.current_balance += diff
         else:
-            account.current_balance -= diff
+            new_balance = account.current_balance - diff
+            if new_balance < 0:
+                raise BusinessError(f"账户余额不足，当前余额: {account.current_balance}")
+            account.current_balance = new_balance
 
     await create_audit_log(db, current_user.id, current_user.username, "update", "payment_record", resource_id=r.id, resource_code=r.code)
     await db.flush()

@@ -12,7 +12,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.customer import Customer, MealRegistration, CustomerSettlement
-from app.core.exceptions import NotFoundError, BusinessError
+from app.core.exceptions import NotFoundError, BusinessError, DuplicateError
 from app.schemas.customer import (
     CustomerCreate, CustomerUpdate, CustomerResponse,
     MealRegistrationCreate, MealRegistrationUpdate, MealRegistrationResponse,

@@ -145,7 +145,7 @@ async def get_expense(expense_id: int, db: AsyncSession = Depends(get_db), curre
         status=e.status, approved_at=str(e.approved_at) if e.approved_at else None,
         reject_reason=e.reject_reason,
         items=[ExpenseItemResponse(id=i.id, description=i.description, amount=i.amount, attachment_url=i.attachment_url) for i in e.items],
-        notes=e.notes, month_closed=e.month_closed,
+        notes=e.notes, photos=e.photos, month_closed=e.month_closed,
     )
 
 

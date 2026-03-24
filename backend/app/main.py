@@ -88,6 +88,18 @@ async def serve_upload(file_path: str, current_user: User = Depends(get_current_
         raise NotFoundError("文件", file_path)
     return FileResponse(full_path)
 
+# Serve frontend static files
+static_dir = pathlib.Path(__file__).parent.parent / "static"
+if static_dir.exists():
+    app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        file_path = static_dir / full_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(static_dir / "index.html")
+
 
 @app.get("/health")
 async def health_check():
