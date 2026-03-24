@@ -39,7 +39,7 @@ class PaymentRecord(AuditMixin, Base):
     counterparty_type = Column(String(16), nullable=False)
     customer_id = Column(Integer, ForeignKey("customers.id"), index=True)
     supplier_id = Column(Integer, ForeignKey("suppliers.id"), index=True)
-    settlement_id = Column(Integer)
+    settlement_id = Column(Integer, ForeignKey("settlements.id"), index=True)
     payment_method = Column(String(16))
     reference_no = Column(String(64))
     notes = Column(Text)

@@ -7,12 +7,11 @@ from fastapi import HTTPException, status
 
 def require_permission(permission_code: str):
     """Dependency factory that checks if the current user has a specific permission."""
+    from fastapi import Depends
     from app.dependencies import get_current_user
+    from app.models.user import User
 
-    async def check_permission(current_user=None):
-        if current_user is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="未登录")
-
+    async def check_permission(current_user: User = Depends(get_current_user)):
         # Admin has all permissions
         user_roles = [r.code for r in current_user.roles]
         if "admin" in user_roles:

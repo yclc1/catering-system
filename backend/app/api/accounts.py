@@ -155,12 +155,31 @@ async def update_payment(record_id: int, data: PaymentRecordUpdate, db: AsyncSes
         raise BusinessError("该记录所在月份已关账，无法修改")
 
     old_amount = r.amount
+    old_account_id = r.account_id
+
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(r, field, value)
     r.updated_by = current_user.id
 
+    # Handle account change
+    if data.account_id is not None and data.account_id != old_account_id:
+        # Revert old account
+        old_account_result = await db.execute(select(PaymentAccount).where(PaymentAccount.id == old_account_id).with_for_update())
+        old_account = old_account_result.scalar_one()
+        if r.direction == "inbound":
+            old_account.current_balance -= old_amount
+        else:
+            old_account.current_balance += old_amount
+
+        # Update new account
+        new_account_result = await db.execute(select(PaymentAccount).where(PaymentAccount.id == data.account_id).with_for_update())
+        new_account = new_account_result.scalar_one()
+        if r.direction == "inbound":
+            new_account.current_balance += r.amount
+        else:
+            new_account.current_balance -= r.amount
     # Adjust account balance if amount changed
-    if data.amount is not None and data.amount != old_amount:
+    elif data.amount is not None and data.amount != old_amount:
         account_result = await db.execute(select(PaymentAccount).where(PaymentAccount.id == r.account_id).with_for_update())
         account = account_result.scalar_one()
         diff = data.amount - old_amount

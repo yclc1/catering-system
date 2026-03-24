@@ -314,12 +314,12 @@ async def generate_settlement(
     row = result.one()
     bc, lc, dc, sc, total = row
 
-    # Check if settlement already exists
+    # Check if settlement already exists with row lock
     existing = await db.execute(
         select(CustomerSettlement).where(
             CustomerSettlement.customer_id == customer_id,
             CustomerSettlement.settlement_month == data.month,
-        )
+        ).with_for_update()
     )
     settlement = existing.scalar_one_or_none()
 

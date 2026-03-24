@@ -1,5 +1,5 @@
 """Authentication API."""
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy import select
@@ -9,11 +9,13 @@ from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
+from app.models.token_blacklist import TokenBlacklist
 from app.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token, decode_token
 from app.core.permissions import get_user_permissions
 from app.schemas.auth import LoginRequest, TokenResponse, RefreshRequest, UserInfo, ChangePasswordRequest
 from app.schemas import MessageResponse
 from app.services.audit_service import create_audit_log
+from app.config import settings
 
 router = APIRouter(prefix="/auth", tags=["认证"])
 
@@ -50,6 +52,13 @@ async def refresh_token(data: RefreshRequest, db: AsyncSession = Depends(get_db)
     payload = decode_token(data.refresh_token)
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="无效的刷新令牌")
+
+    # Check blacklist
+    blacklist_check = await db.execute(
+        select(TokenBlacklist).where(TokenBlacklist.token == data.refresh_token)
+    )
+    if blacklist_check.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="令牌已失效")
 
     user_id = payload.get("sub")
     result = await db.execute(
@@ -90,3 +99,22 @@ async def change_password(
 
     current_user.password_hash = get_password_hash(data.new_password)
     return MessageResponse(message="密码修改成功")
+
+
+@router.post("/logout", response_model=MessageResponse)
+async def logout(
+    data: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Logout by blacklisting the refresh token."""
+    payload = decode_token(data.refresh_token)
+    if payload and payload.get("exp"):
+        expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        blacklist_entry = TokenBlacklist(
+            token=data.refresh_token,
+            expires_at=expires_at,
+        )
+        db.add(blacklist_entry)
+        await create_audit_log(db, current_user.id, current_user.username, "logout", "user", resource_id=current_user.id)
+    return MessageResponse(message="已退出登录")

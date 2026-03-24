@@ -16,7 +16,7 @@ from app.schemas.user import (
     RoleCreate, RoleUpdate, RoleResponse, PermissionResponse,
 )
 from app.schemas import PageResponse, MessageResponse, DropdownItem
-from app.services.audit_service import create_audit_log
+from app.core.permissions import require_permission, get_user_permissions
 
 router = APIRouter(prefix="/users", tags=["用户管理"])
 role_router = APIRouter(prefix="/roles", tags=["角色管理"])
@@ -61,7 +61,7 @@ async def list_users(
 async def create_user(
     data: UserCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("user:create")),
 ):
     existing = await db.execute(select(User).where(User.username == data.username))
     if existing.scalar_one_or_none():
@@ -114,7 +114,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db), current_use
 async def update_user(
     user_id: int, data: UserUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("user:update")),
 ):
     result = await db.execute(select(User).options(selectinload(User.roles)).where(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -151,7 +151,7 @@ async def update_user(
 async def deactivate_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("user:delete")),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -167,8 +167,13 @@ async def deactivate_user(
 async def update_user_roles(
     user_id: int, data: UserRoleUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("user:update_roles")),
 ):
+    # Prevent self-modification
+    if user_id == current_user.id:
+        from app.core.exceptions import BusinessError
+        raise BusinessError("不能修改自己的角色")
+
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
@@ -212,6 +217,8 @@ async def list_roles(db: AsyncSession = Depends(get_db), current_user: User = De
 async def create_role(
     data: RoleCreate,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission("role:create")),
+):
     current_user: User = Depends(get_current_user),
 ):
     role = Role(code=data.code, name=data.name, description=data.description)
@@ -235,7 +242,7 @@ async def create_role(
 async def update_role(
     role_id: int, data: RoleUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("role:update")),
 ):
     result = await db.execute(select(Role).where(Role.id == role_id))
     role = result.scalar_one_or_none()
@@ -265,7 +272,7 @@ async def update_role(
 async def delete_role(
     role_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("role:delete")),
 ):
     result = await db.execute(select(Role).where(Role.id == role_id))
     role = result.scalar_one_or_none()

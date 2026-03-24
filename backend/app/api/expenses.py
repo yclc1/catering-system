@@ -104,6 +104,8 @@ async def approve_expense(expense_id: int, db: AsyncSession = Depends(get_db), c
         raise NotFoundError("费用审批", expense_id)
     if e.status != "pending":
         raise BusinessError("只能审批待审核状态的费用")
+    if e.created_by == current_user.id:
+        raise BusinessError("不能审批自己提交的费用")
     e.status = "approved"
     e.approved_at = datetime.now(timezone.utc)
     e.updated_by = current_user.id

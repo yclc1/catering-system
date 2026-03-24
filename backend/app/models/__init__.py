@@ -13,6 +13,7 @@ from app.models.audit import AuditLog
 from app.models.monthly_close import MonthlyClose
 from app.models.code_sequence import CodeSequence
 from app.models.notification import NotificationQueue
+from app.models.token_blacklist import TokenBlacklist
 
 __all__ = [
     "User", "Role", "Permission", "RolePermission", "UserRole",
@@ -25,5 +26,5 @@ __all__ = [
     "ExpenseCategory", "ExpenseApproval", "ExpenseItem",
     "Vehicle", "VehicleMaintenanceRecord", "VehicleInsuranceRecord",
     "Contract", "ContractReminder",
-    "AuditLog", "MonthlyClose", "CodeSequence", "NotificationQueue",
+    "AuditLog", "MonthlyClose", "CodeSequence", "NotificationQueue", "TokenBlacklist",
 ]

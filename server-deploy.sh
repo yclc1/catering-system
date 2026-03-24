@@ -5,20 +5,31 @@ set -e
 
 echo "=== 开始部署 ==="
 
+# 创建非 root 用户
+if ! id -u catering > /dev/null 2>&1; then
+    useradd -m -s /bin/bash catering
+    echo "用户 catering 已创建"
+fi
+
 # 配置后端环境变量
 cd /opt/catering-system/backend
 cat > .env << 'EOF'
-DATABASE_URL=postgresql+asyncpg://catering_user:Catering@2026@localhost/catering_db
-SECRET_KEY=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+DATABASE_URL=postgresql+asyncpg://catering_user:CHANGE_THIS_PASSWORD@localhost/catering_db
+SECRET_KEY=CHANGE_THIS_TO_RANDOM_KEY
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=120
 REFRESH_TOKEN_EXPIRE_DAYS=7
 EOF
 
+echo "警告: 请手动修改 .env 文件中的 DATABASE_URL 和 SECRET_KEY"
+echo "生成密钥: openssl rand -hex 32"
+
 # 安装 Python 依赖
 pip3 install -r requirements.txt
 
-# 运行数据库迁移
+# 生成并运行数据库迁移
+rm -f alembic/versions/*.py
+python3 -m alembic revision --autogenerate -m "initial_migration"
 python3 -m alembic upgrade head
 
 # 创建 systemd 服务
@@ -29,7 +40,7 @@ After=network.target postgresql.service
 
 [Service]
 Type=simple
-User=root
+User=catering
 WorkingDirectory=/opt/catering-system/backend
 Environment="PATH=/usr/bin:/usr/local/bin"
 ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -39,6 +50,8 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
+
+chown -R catering:catering /opt/catering-system
 
 systemctl daemon-reload
 systemctl enable catering-backend

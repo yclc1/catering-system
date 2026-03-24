@@ -6,7 +6,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.core.permissions import require_permission
 from app.models.user import User
 from app.models.audit import AuditLog
 from app.models.monthly_close import MonthlyClose
@@ -82,7 +82,7 @@ class ReopenMonthRequest(BaseModel):
 async def close_month_api(
     data: CloseMonthRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("monthly_close:create")),
 ):
     await close_month(db, data.month, current_user.id, current_user.username)
     return MessageResponse(message=f"月份 {data.month} 已关闭")
@@ -92,7 +92,7 @@ async def close_month_api(
 async def reopen_month_api(
     close_id: int, data: ReopenMonthRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_permission("monthly_close:reopen")),
 ):
     result = await db.execute(select(MonthlyClose).where(MonthlyClose.id == close_id))
     mc = result.scalar_one_or_none()

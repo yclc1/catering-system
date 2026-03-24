@@ -1,5 +1,5 @@
 """Audit Log model."""
-from sqlalchemy import Column, BigInteger, Integer, String, DateTime, func
+from sqlalchemy import Column, BigInteger, Integer, String, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.database import Base
@@ -9,7 +9,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
     username = Column(String(64), nullable=False)
     action = Column(String(16), nullable=False, index=True)
     resource_type = Column(String(64), nullable=False, index=True)
