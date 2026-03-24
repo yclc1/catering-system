@@ -180,6 +180,11 @@ function openCreate() {
 }
 
 function handleFileChange(file: UploadFile) {
+  const maxSize = 5 * 1024 * 1024 // 5MB
+  if (file.size && file.size > maxSize) {
+    ElMessage.error('图片大小不能超过 5MB')
+    return false
+  }
   const reader = new FileReader()
   reader.onload = (e) => {
     form.value.photos.push(e.target?.result as string)
