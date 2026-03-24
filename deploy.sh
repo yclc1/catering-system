@@ -1,40 +1,37 @@
 #!/bin/bash
-# 部署脚本 - 在服务器上运行
-
 set -e
 
-echo "=== 开始部署 ==="
+echo "🚀 开始部署到云服务器..."
 
 # 拉取最新代码
+echo "📥 拉取最新代码..."
 git pull origin main
 
-# 后端部署
-echo "=== 部署后端 ==="
+# 更新数据库
+echo "🗄️  更新数据库..."
 cd backend
-pip3 install -r requirements.txt
-python3 -m alembic upgrade head
+source venv/bin/activate 2>/dev/null || python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt -q
+alembic upgrade head
+deactivate
+cd ..
 
-# 重启后端服务
-if systemctl is-active --quiet catering-backend; then
-    sudo systemctl restart catering-backend
-    echo "后端服务已重启"
-else
-    echo "后端服务未运行，请手动启动"
-fi
+# 重新构建并启动容器
+echo "🐳 重启 Docker 容器..."
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
 
-# 前端部署
-echo "=== 部署前端 ==="
-cd ../frontend
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-npm install
-npm run build
+# 等待服务启动
+echo "⏳ 等待服务启动..."
+sleep 5
 
-# 复制构建文件到 nginx 目录
-if [ -d "/var/www/catering" ]; then
-    sudo rm -rf /var/www/catering/*
-    sudo cp -r dist/* /var/www/catering/
-    echo "前端文件已更新"
-fi
+# 检查服务状态
+echo "✅ 检查服务状态..."
+docker-compose ps
 
-echo "=== 部署完成 ==="
+# 健康检查
+echo "🏥 健康检查..."
+curl -f http://localhost/health || echo "⚠️  健康检查失败"
+
+echo "✨ 部署完成！"
