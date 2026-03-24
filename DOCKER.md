@@ -1,23 +1,45 @@
 # Docker 部署指南
 
+## 前置条件
+
+**PostgreSQL 数据库**（独立部署，不在 Docker 中）
+```bash
+# 安装 PostgreSQL
+# macOS: brew install postgresql@15
+# Ubuntu: sudo apt install postgresql-15
+
+# 创建数据库和用户
+sudo -u postgres psql
+CREATE DATABASE catering_db;
+CREATE USER catering_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE catering_db TO catering_user;
+\q
+```
+
 ## 快速开始
 
 1. **创建环境变量文件**
 ```bash
 cat > .env << EOF
-DB_PASSWORD=$(openssl rand -base64 24)
+DATABASE_URL=postgresql+asyncpg://catering_user:your_password@localhost/catering_db
 SECRET_KEY=$(openssl rand -hex 32)
 EOF
 ```
 
-2. **启动服务**
+2. **初始化数据库**
 ```bash
-docker-compose up -d
+# 安装依赖
+cd backend
+pip install -r requirements.txt
+
+# 运行迁移
+alembic upgrade head
+cd ..
 ```
 
-3. **初始化数据库**
+3. **启动服务**
 ```bash
-docker-compose exec backend alembic upgrade head
+docker-compose up -d
 ```
 
 4. **访问系统**
@@ -45,8 +67,8 @@ cp /etc/letsencrypt/live/your-domain.com/privkey.pem ssl/
 ### 备份数据
 
 ```bash
-# 备份数据库
-docker-compose exec db pg_dump -U catering_user catering_db > backup.sql
+# 备份数据库（本地 PostgreSQL）
+pg_dump -U catering_user catering_db > backup_$(date +%Y%m%d).sql
 
 # 备份上传文件
 docker-compose exec backend tar czf /tmp/uploads.tar.gz uploads
@@ -57,10 +79,16 @@ docker cp $(docker-compose ps -q backend):/tmp/uploads.tar.gz ./
 
 ```bash
 git pull origin main
+
+# 更新数据库
+cd backend
+alembic upgrade head
+cd ..
+
+# 重新构建并启动容器
 docker-compose down
 docker-compose build
 docker-compose up -d
-docker-compose exec backend alembic upgrade head
 ```
 
 ## 监控
