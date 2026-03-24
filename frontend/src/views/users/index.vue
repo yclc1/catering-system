@@ -107,7 +107,11 @@ async function handleSave() {
 }
 
 async function handleDelete(row: any) {
-  await ElMessageBox.confirm('确定删除该用户？', '确认')
-  await userApi.delete(row.id); ElMessage.success('已删除'); loadData()
+  try {
+    await ElMessageBox.confirm('确定删除该用户？', '确认')
+    await userApi.delete(row.id); ElMessage.success('已删除'); loadData()
+  } catch (error) {
+    if (error !== 'cancel') console.error(error)
+  }
 }
 </script>

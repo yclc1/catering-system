@@ -28,6 +28,7 @@ class PaymentRecord(AuditMixin, Base):
             "(counterparty_type = 'supplier' AND supplier_id IS NOT NULL)",
             name="ck_payment_counterparty"
         ),
+        CheckConstraint("direction IN ('inbound', 'outbound')", name="ck_payment_direction"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)

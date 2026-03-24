@@ -22,7 +22,7 @@ class Product(AuditMixin, SoftDeleteMixin, Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(32), unique=True, nullable=False, index=True)
     name = Column(String(128), nullable=False, index=True)
-    category_id = Column(Integer, ForeignKey("product_categories.id"), nullable=False)
+    category_id = Column(Integer, ForeignKey("product_categories.id"), nullable=False, index=True)
     unit = Column(String(16), nullable=False)
     spec = Column(String(64))
     default_supplier_id = Column(Integer, ForeignKey("suppliers.id"))

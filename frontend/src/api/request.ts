@@ -55,8 +55,11 @@ request.interceptors.response.use(
         pendingRequests = []
         config.headers.Authorization = `Bearer ${newToken}`
         return request(config)
-      } catch {
+      } catch (refreshError) {
+        pendingRequests.forEach((cb) => cb(''))
+        pendingRequests = []
         goLogin()
+        return Promise.reject(refreshError)
         return Promise.reject(error)
       } finally {
         isRefreshing = false

@@ -145,6 +145,16 @@ async def create_meal(
 ):
     await check_month_not_closed(db, data.meal_date)
 
+    # Check duplicate
+    existing = await db.execute(
+        select(MealRegistration).where(
+            MealRegistration.customer_id == customer_id,
+            MealRegistration.meal_date == data.meal_date,
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise DuplicateError(f"该客户在 {data.meal_date} 已有餐次登记")
+
     # Get customer prices
     cust_result = await db.execute(select(Customer).where(Customer.id == customer_id, Customer.is_deleted == False))
     customer = cust_result.scalar_one_or_none()

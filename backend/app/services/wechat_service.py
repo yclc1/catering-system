@@ -1,5 +1,6 @@
 """WeChat notification service."""
 import httpx
+import asyncio
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -12,6 +13,7 @@ from app.models.notification import NotificationQueue
 
 _access_token: Optional[str] = None
 _token_expires_at: Optional[datetime] = None
+_token_lock = asyncio.Lock()
 
 
 async def get_wechat_access_token() -> Optional[str]:
@@ -24,21 +26,26 @@ async def get_wechat_access_token() -> Optional[str]:
     if _access_token and _token_expires_at and now < _token_expires_at:
         return _access_token
 
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            "https://api.weixin.qq.com/cgi-bin/token",
-            params={
-                "grant_type": "client_credential",
-                "appid": settings.WECHAT_APP_ID,
-                "secret": settings.WECHAT_APP_SECRET,
-            },
-        )
-        data = resp.json()
-        if "access_token" in data:
-            _access_token = data["access_token"]
-            from datetime import timedelta
-            _token_expires_at = now + timedelta(seconds=data.get("expires_in", 7200) - 300)
+    async with _token_lock:
+        # Double check after acquiring lock
+        if _access_token and _token_expires_at and now < _token_expires_at:
             return _access_token
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                "https://api.weixin.qq.com/cgi-bin/token",
+                params={
+                    "grant_type": "client_credential",
+                    "appid": settings.WECHAT_APP_ID,
+                    "secret": settings.WECHAT_APP_SECRET,
+                },
+            )
+            data = resp.json()
+            if "access_token" in data:
+                _access_token = data["access_token"]
+                from datetime import timedelta
+                _token_expires_at = now + timedelta(seconds=data.get("expires_in", 7200) - 300)
+                return _access_token
     return None
 
 
@@ -70,6 +77,7 @@ async def process_notification_queue(db: AsyncSession):
         .where(NotificationQueue.status == "pending", NotificationQueue.retry_count < 3)
         .order_by(NotificationQueue.id)
         .limit(50)
+        .with_for_update(skip_locked=True)
     )
     notifications = result.scalars().all()
 

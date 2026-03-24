@@ -21,7 +21,7 @@ class ExpenseApproval(AuditMixin, Base):
     code = Column(String(32), unique=True, nullable=False, index=True)
     applicant_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     approver_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    category_id = Column(Integer, ForeignKey("expense_categories.id"), nullable=False)
+    category_id = Column(Integer, ForeignKey("expense_categories.id"), nullable=False, index=True)
     title = Column(String(128), nullable=False)
     total_amount = Column(Numeric(14, 2), nullable=False)
     expense_date = Column(Date, nullable=False, index=True)

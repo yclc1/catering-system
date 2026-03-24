@@ -126,7 +126,10 @@ async def create_payment(data: PaymentRecordCreate, db: AsyncSession = Depends(g
     if data.direction == "inbound":
         account.current_balance += data.amount
     else:
-        account.current_balance -= data.amount
+        new_balance = account.current_balance - data.amount
+        if new_balance < 0:
+            raise BusinessError(f"账户余额不足，当前余额: {account.current_balance}")
+        account.current_balance = new_balance
 
     await create_audit_log(db, current_user.id, current_user.username, "create", "payment_record", resource_id=record.id, resource_code=code)
     await db.flush()
@@ -223,7 +226,8 @@ async def delete_payment(record_id: int, db: AsyncSession = Depends(get_db), cur
         account.current_balance += r.amount
 
     await create_audit_log(db, current_user.id, current_user.username, "delete", "payment_record", resource_id=r.id, resource_code=r.code)
-    await db.delete(r)
+    r.is_deleted = True
+    r.updated_by = current_user.id
     await db.flush()
     return MessageResponse(message="收付款记录已删除")
 
