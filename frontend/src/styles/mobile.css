@@ -8,6 +8,7 @@
 
   #app {
     overflow-x: hidden;
+    width: 100vw;
   }
 
   /* 全局弹窗适配 */
@@ -24,6 +25,7 @@
     padding: 12px 16px !important;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .el-dialog__footer {
@@ -31,12 +33,37 @@
   }
 
   /* 表单适配 */
+  .el-form {
+    width: 100% !important;
+  }
+
   .el-form-item {
     margin-bottom: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .el-form-item__label {
     font-size: 14px !important;
+    width: 100% !important;
+    text-align: left !important;
+    margin-bottom: 4px !important;
+  }
+
+  .el-form-item__content {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .el-input,
+  .el-select,
+  .el-date-editor,
+  .el-textarea {
+    width: 100% !important;
+  }
+
+  .el-input__inner {
+    width: 100% !important;
   }
 
   /* 表格适配 - 允许横向滚动 */
@@ -67,6 +94,7 @@
   .search-bar {
     flex-direction: column !important;
     gap: 8px !important;
+    width: 100% !important;
   }
 
   .search-bar .el-form-item {
@@ -77,6 +105,7 @@
   /* 卡片适配 */
   .el-card {
     margin-bottom: 12px !important;
+    width: 100% !important;
   }
 
   .el-card__header {
@@ -114,5 +143,12 @@
   .el-message {
     min-width: 280px !important;
     max-width: 90vw !important;
+  }
+
+  /* 行内表单适配 */
+  .el-form--inline .el-form-item {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
   }
 }
