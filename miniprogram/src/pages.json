@@ -1,0 +1,70 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "餐饮管理"
+			}
+		},
+		{
+			"path": "pages/meals/index",
+			"style": {
+				"navigationBarTitleText": "用餐登记"
+			}
+		},
+		{
+			"path": "pages/approval/index",
+			"style": {
+				"navigationBarTitleText": "费用审批"
+			}
+		},
+		{
+			"path": "pages/purchase/index",
+			"style": {
+				"navigationBarTitleText": "采购管理"
+			}
+		},
+		{
+			"path": "pages/inventory/index",
+			"style": {
+				"navigationBarTitleText": "库存查询"
+			}
+		},
+		{
+			"path": "pages/profile/index",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		}
+	],
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#409EFF",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/meals/index",
+				"text": "用餐"
+			},
+			{
+				"pagePath": "pages/approval/index",
+				"text": "审批"
+			},
+			{
+				"pagePath": "pages/profile/index",
+				"text": "我的"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "餐饮管理系统",
+		"navigationBarBackgroundColor": "#409EFF",
+		"backgroundColor": "#F8F8F8"
+	}
+}
